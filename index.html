@@ -180,7 +180,7 @@ function reset() {
     actualitzarPantalla();
     guardar();
 }
-
+    
 /* -------- UI -------- */
 
 function actualitzarPantalla() {
@@ -197,32 +197,29 @@ function actualitzarPantalla() {
 /* -------- CONTROL PER SIRI (URL) -------- */
 
 function llegirOrdreURL() {
-    const params = new URLSearchParams(window.location.search);
-    const accio = params.get("accio");
+    const hash = window.location.hash;
 
-    if (!accio) return;
+    if (!hash) return;
 
-    if (accio === "blau") punt("blau");
-    if (accio === "vermell") punt("vermell");
-    if (accio === "desfer") desfer();
-    if (accio === "reset") reset();
+    if (hash.includes("blau")) punt("blau");
+    if (hash.includes("vermell")) punt("vermell");
+    if (hash.includes("desfer")) desfer();
+    if (hash.includes("reset")) reset();
 
-    // NETEJAR URL (IMPORTANT)
-    window.history.replaceState({}, document.title, window.location.pathname);
+    // netejar hash (important)
+    history.replaceState("", document.title, window.location.pathname);
 }
 
 /* -------- INIT -------- */
 
-function llegirOrdreURL() {
-    const url = window.location.href;
+window.addEventListener("load", function() {
+    carregar();
+    actualitzarPantalla();
 
-    if (url.includes("accio=blau")) punt("blau");
-    if (url.includes("accio=vermell")) punt("vermell");
-    if (url.includes("accio=desfer")) desfer();
-    if (url.includes("accio=reset")) reset();
-
-    window.history.replaceState({}, document.title, window.location.pathname);
-}
+    setTimeout(() => {
+        llegirOrdreURL();
+    }, 100);
+});
 
 </script>
 
