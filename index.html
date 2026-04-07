@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="ca">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Marcador TT PRO</title>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: black;
+    color: white;
+    text-align: center;
+}
+
+.container {
+    display: flex;
+    flex-direction: column;
+    height: 100vh;
+    justify-content: space-between;
+}
+
+.score {
+    font-size: 100px;
+    margin-top: 20px;
+}
+
+.sets {
+    font-size: 40px;
+}
+
+.servei {
+    font-size: 25px;
+    margin: 10px;
+}
+
+.buttons {
+    display: flex;
+    height: 40%;
+}
+
+button {
+    flex: 1;
+    font-size: 40px;
+    border: none;
+}
+
+.blau { background: blue; color: white; }
+.vermell { background: red; color: white; }
+
+.controls {
+    margin-bottom: 20px;
+}
+
+.small-btn {
+    font-size: 20px;
+    margin: 5px;
+    padding: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<div>
+    <div class="score" id="score">0 - 0</div>
+    <div class="sets" id="sets">Sets: 0 - 0</div>
+    <div class="servei" id="servei">Servei: blau</div>
+</div>
+
+<div class="buttons">
+    <button class="blau" onclick="punt('blau')">🔵</button>
+    <button class="vermell" onclick="punt('vermell')">🔴</button>
+</div>
+
+<div class="controls">
+    <button class="small-btn" onclick="desfer()">🔙 Desfer</button>
+    <button class="small-btn" onclick="reset()">♻️ Reset</button>
+</div>
+
+</div>
+
+<script>
+
+/* -------- CARREGAR / GUARDAR -------- */
+
+function guardar() {
+    localStorage.setItem("marcador", JSON.stringify(marcador));
+}
+
+function carregar() {
+    let dades = localStorage.getItem("marcador");
+    if (dades) marcador = JSON.parse(dades);
+}
+
+/* -------- ESTAT -------- */
+
+let marcador = {
+    puntsBlau: 0,
+    puntsVermell: 0,
+    setsBlau: 0,
+    setsVermell: 0,
+    servei: "blau",
+    tornsServei: 0,
+    historial: []
+};
+
+/* -------- HISTORIAL -------- */
+
+function guardarHistorial() {
+    marcador.historial.push(JSON.parse(JSON.stringify(marcador)));
+}
+
+/* -------- PUNTS -------- */
+
+function punt(jugador) {
+    guardarHistorial();
+
+    if (jugador === "blau") marcador.puntsBlau++;
+    else marcador.puntsVermell++;
+
+    marcador.tornsServei++;
+
+    if (marcador.tornsServei === 2) {
+        marcador.servei = marcador.servei === "blau" ? "vermell" : "blau";
+        marcador.tornsServei = 0;
+    }
+
+    comprovarSet();
+    actualitzarPantalla();
+    guardar();
+}
+
+/* -------- SETS -------- */
+
+function comprovarSet() {
+    if (marcador.puntsBlau >= 11 && marcador.puntsBlau - marcador.puntsVermell >= 2) {
+        marcador.setsBlau++;
+        resetPunts();
+        marcador.servei = "vermell";
+    }
+
+    if (marcador.puntsVermell >= 11 && marcador.puntsVermell - marcador.puntsBlau >= 2) {
+        marcador.setsVermell++;
+        resetPunts();
+        marcador.servei = "blau";
+    }
+}
+
+function resetPunts() {
+    marcador.puntsBlau = 0;
+    marcador.puntsVermell = 0;
+}
+
+/* -------- DESFER -------- */
+
+function desfer() {
+    if (marcador.historial.length > 0) {
+        marcador = marcador.historial.pop();
+        actualitzarPantalla();
+        guardar();
+    }
+}
+
+/* -------- RESET -------- */
+
+function reset() {
+    marcador = {
+        puntsBlau: 0,
+        puntsVermell: 0,
+        setsBlau: 0,
+        setsVermell: 0,
+        servei: "blau",
+        tornsServei: 0,
+        historial: []
+    };
+    actualitzarPantalla();
+    guardar();
+}
+
+/* -------- UI -------- */
+
+function actualitzarPantalla() {
+    document.getElementById("score").innerText =
+        marcador.puntsBlau + " - " + marcador.puntsVermell;
+
+    document.getElementById("sets").innerText =
+        "Sets: " + marcador.setsBlau + " - " + marcador.setsVermell;
+
+    document.getElementById("servei").innerText =
+        "Servei: " + marcador.servei;
+}
+
+/* -------- CONTROL PER SIRI (URL) -------- */
+
+function llegirOrdreURL() {
+    const params = new URLSearchParams(window.location.search);
+    const accio = params.get("accio");
+
+    if (!accio) return;
+
+    if (accio === "blau") punt("blau");
+    if (accio === "vermell") punt("vermell");
+    if (accio === "desfer") desfer();
+    if (accio === "reset") reset();
+
+    // NETEJAR URL (IMPORTANT)
+    window.history.replaceState({}, document.title, window.location.pathname);
+}
+
+/* -------- INIT -------- */
+
+window.onload = function() {
+    carregar();
+    actualitzarPantalla();
+    llegirOrdreURL();
+};
+
+</script>
+
+</body>
+</html>
