@@ -21,19 +21,9 @@ body {
     justify-content: space-between;
 }
 
-.score {
-    font-size: 100px;
-    margin-top: 20px;
-}
-
-.sets {
-    font-size: 40px;
-}
-
-.servei {
-    font-size: 25px;
-    margin: 10px;
-}
+.score { font-size: 100px; margin-top: 20px; }
+.sets { font-size: 40px; }
+.servei { font-size: 25px; margin: 10px; }
 
 .buttons {
     display: flex;
@@ -85,7 +75,7 @@ button {
 
 <script>
 
-/* -------- CARREGAR / GUARDAR -------- */
+/* -------- STORAGE -------- */
 
 function guardar() {
     localStorage.setItem("marcador", JSON.stringify(marcador));
@@ -180,7 +170,7 @@ function reset() {
     actualitzarPantalla();
     guardar();
 }
-    
+
 /* -------- UI -------- */
 
 function actualitzarPantalla() {
@@ -194,32 +184,32 @@ function actualitzarPantalla() {
         "Servei: " + marcador.servei;
 }
 
-/* -------- CONTROL PER SIRI (URL) -------- */
+/* -------- CONTROL SIRI (ULTRA ESTABLE) -------- */
 
-function llegirOrdreURL() {
-    const hash = window.location.hash;
+function llegirOrdre() {
+    const url = window.location.href;
 
-    if (!hash) return;
+    if (url.includes("c=blau")) punt("blau");
+    if (url.includes("c=vermell")) punt("vermell");
+    if (url.includes("c=desfer")) desfer();
+    if (url.includes("c=reset")) reset();
 
-    if (hash.includes("blau")) punt("blau");
-    if (hash.includes("vermell")) punt("vermell");
-    if (hash.includes("desfer")) desfer();
-    if (hash.includes("reset")) reset();
-
-    // netejar hash (important)
-    history.replaceState("", document.title, window.location.pathname);
+    // neteja URL
+    if (url.includes("?c=")) {
+        window.location.replace(window.location.origin + window.location.pathname);
+    }
 }
 
 /* -------- INIT -------- */
 
-window.addEventListener("load", function() {
+window.onload = function() {
     carregar();
     actualitzarPantalla();
 
     setTimeout(() => {
-        llegirOrdreURL();
-    }, 100);
-});
+        llegirOrdre();
+    }, 200);
+};
 
 </script>
 
