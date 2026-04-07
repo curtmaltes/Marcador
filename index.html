@@ -213,15 +213,16 @@ function llegirOrdreURL() {
 
 /* -------- INIT -------- */
 
-window.addEventListener("load", function() {
-    carregar();
-    actualitzarPantalla();
+function llegirOrdreURL() {
+    const url = window.location.href;
 
-    // petit retard perquè Safari carregui bé la URL
-    setTimeout(() => {
-        llegirOrdreURL();
-    }, 200);
-});
+    if (url.includes("accio=blau")) punt("blau");
+    if (url.includes("accio=vermell")) punt("vermell");
+    if (url.includes("accio=desfer")) desfer();
+    if (url.includes("accio=reset")) reset();
+
+    window.history.replaceState({}, document.title, window.location.pathname);
+}
 
 </script>
 
