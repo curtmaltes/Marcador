@@ -213,11 +213,15 @@ function llegirOrdreURL() {
 
 /* -------- INIT -------- */
 
-window.onload = function() {
+window.addEventListener("load", function() {
     carregar();
     actualitzarPantalla();
-    llegirOrdreURL();
-};
+
+    // petit retard perquè Safari carregui bé la URL
+    setTimeout(() => {
+        llegirOrdreURL();
+    }, 200);
+});
 
 </script>
 
